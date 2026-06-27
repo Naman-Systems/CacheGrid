@@ -1,0 +1,14 @@
+{
+  "name": "cachegrid",
+  "version": "1.0.0",
+  "description": "Distributed in-memory cache cluster built from scratch",
+  "main": "src/client/index.js",
+  "scripts": {
+    "start": "node src/node/index.js",
+    "chaos": "node scripts/chaos_test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

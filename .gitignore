@@ -1,0 +1,6 @@
+node_modules/
+prep/
+.claude/
+*.log
+.env
+.DS_Store
