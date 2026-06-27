@@ -1,5 +1,5 @@
  Self-Healing Distributed Cache
-Small Name: CacheGrid (or HealCache / NodeMesh / ResiliCache)
+Small Name: CacheGrid 
 
 📌 What It Is
 
