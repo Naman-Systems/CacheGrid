@@ -1,8 +1,9 @@
 'use strict';
 
 class Protocol {
-  constructor(store) {
+  constructor(store, replicator) {
     this._store = store;
+    this._replicator = replicator || null;
   }
 
   attach(socket) {
@@ -34,6 +35,7 @@ class Protocol {
         const value = parts.slice(2).join(' ');
         this._store.set(key, value, ttlMs);
         socket.write('OK\n');
+        if (this._replicator) this._replicator.replicate(key);
         break;
       }
       case 'GET': {
@@ -65,6 +67,14 @@ class Protocol {
         const value = parts.slice(2).join(' ');
         this._store.set(key, value, ttlMs);
         socket.write('OK\n');
+        break;
+      }
+      case 'PEERS': {
+        if (this._replicator) this._replicator.updatePeers(rest.trim().split(' ').filter(Boolean));
+        break;
+      }
+      case 'RING_UPDATE': {
+        if (this._replicator) this._replicator.updateRing(rest.trim().split(' ').filter(Boolean));
         break;
       }
       default:
