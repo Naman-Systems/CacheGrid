@@ -4,6 +4,7 @@ const net = require('net');
 const Store = require('./store');
 const Protocol = require('./protocol');
 const Replicator = require('./replicator');
+const Gossip = require('./gossip');
 
 const NODE_ID = process.env.NODE_ID || 'node1';
 const PORT = parseInt(process.env.PORT || '7001', 10);
@@ -12,6 +13,17 @@ const PEERS = (process.env.PEERS || '').split(',').map(s => s.trim()).filter(Boo
 const store = new Store();
 const replicator = new Replicator(store, NODE_ID, PEERS);
 const protocol = new Protocol(store, replicator);
+
+const gossip = new Gossip(
+  NODE_ID,
+  PEERS,
+  (deadId) => {
+    replicator.ring().removeNode(deadId);
+  },
+  (aliveId) => {
+    replicator.ring().addNode(aliveId);
+  }
+);
 
 const server = net.createServer((socket) => {
   socket.setNoDelay(true);
@@ -30,6 +42,7 @@ server.on('error', (err) => {
 function close() {
   store.close();
   replicator.close();
+  gossip.close();
   server.close();
 }
 
