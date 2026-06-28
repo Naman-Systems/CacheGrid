@@ -1,0 +1,40 @@
+networks:
+  cachegrid-net:
+    driver: bridge
+
+services:
+  node1:
+    build: .
+    container_name: cachegrid-node1
+    environment:
+      NODE_ID: node1
+      PORT: "7001"
+      PEERS: "node2:7002,node3:7003"
+    ports:
+      - "7001:7001"
+    networks:
+      - cachegrid-net
+
+  node2:
+    build: .
+    container_name: cachegrid-node2
+    environment:
+      NODE_ID: node2
+      PORT: "7002"
+      PEERS: "node1:7001,node3:7003"
+    ports:
+      - "7002:7002"
+    networks:
+      - cachegrid-net
+
+  node3:
+    build: .
+    container_name: cachegrid-node3
+    environment:
+      NODE_ID: node3
+      PORT: "7003"
+      PEERS: "node1:7001,node2:7002"
+    ports:
+      - "7003:7003"
+    networks:
+      - cachegrid-net
