@@ -5,6 +5,7 @@ const Store = require('./store');
 const Protocol = require('./protocol');
 const Replicator = require('./replicator');
 const Gossip = require('./gossip');
+const Rebalance = require('./rebalance');
 
 const NODE_ID = process.env.NODE_ID || 'node1';
 const PORT = parseInt(process.env.PORT || '7001', 10);
@@ -14,14 +15,27 @@ const store = new Store();
 const replicator = new Replicator(store, NODE_ID, PEERS);
 const protocol = new Protocol(store, replicator);
 
+// Build a nodeId → { host, port } map for rebalance migrations
+const peerMap = new Map();
+for (const str of PEERS) {
+  const parts = str.split(':');
+  if (parts.length === 3) peerMap.set(parts[0], { host: parts[1], port: parseInt(parts[2], 10) });
+  else if (parts.length === 2) peerMap.set(parts[0], { host: parts[0], port: parseInt(parts[1], 10) });
+}
+
 const gossip = new Gossip(
   NODE_ID,
   PEERS,
   (deadId) => {
     replicator.ring().removeNode(deadId);
+    const rebalance = new Rebalance(store, replicator.ring(), NODE_ID, peerMap);
+    rebalance.run();
   },
-  (aliveId) => {
+  (aliveId, peer) => {
     replicator.ring().addNode(aliveId);
+    if (!peerMap.has(aliveId)) peerMap.set(aliveId, { host: peer.host, port: peer.port });
+    const rebalance = new Rebalance(store, replicator.ring(), NODE_ID, peerMap);
+    rebalance.run();
   }
 );
 
