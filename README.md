@@ -213,3 +213,18 @@ Errors (post-settle):    0
 | Hashing | `crypto.md5` (built-in) | Fast, uniform distribution, no deps |
 | Container | Docker + Docker Compose | Realistic multi-node simulation locally |
 | No external libs | Intentional | Every subsystem is visible and explainable |
+
+---
+
+## Limitations and Future Improvements
+
+CacheGrid is currently a learning project and prototype. Possible future improvements include:
+
+- **Durability:** Add optional disk persistence or snapshots so node restarts do not lose all local data.
+- **Reliable replication:** Acknowledge replica writes, retry failed replication, and replicate deletions. The current write replication is asynchronous and does not confirm that the replica stored the value.
+- **Failure recovery:** Improve dead-node probing and ring convergence so recovered nodes are reliably detected and safely rejoin the cluster.
+- **Conflict handling:** Define consistent behavior for concurrent writes during network partitions, such as versioning or an explicit conflict-resolution policy.
+- **Safer protocol:** Add input validation and robust message framing, then support values and keys containing arbitrary characters.
+- **Security:** Add authentication and encrypted connections before considering use on untrusted networks.
+- **Stronger testing and operations:** Test returned values and data consistency during failures, and add metrics, structured logs, and health endpoints.
+- **Scale testing:** Benchmark larger clusters and workloads; the current peer monitoring and design target small clusters.
